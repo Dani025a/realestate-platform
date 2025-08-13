@@ -1,9 +1,9 @@
-﻿apiVersion: apps/v1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: hello-service
 spec:
-  replicas: {{ .Values.replicaCount }}
+  replicas: { { .Values.replicaCount } }
   selector:
     matchLabels: { app: hello-service }
   template:
@@ -12,15 +12,14 @@ spec:
     spec:
       containers:
         - name: hello-service
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          image: '{{ .Values.image.repository }}:{{ .Values.image.tag }}'
+          imagePullPolicy: { { .Values.image.pullPolicy } }
           ports:
-            - containerPort: {{ .Values.service.targetPort }}
-          env:
-            {{- toYaml .Values.env | nindent 12 }}
+            - containerPort: { { .Values.service.targetPort } }
+          env: { { - toYaml .Values.env | nindent 12 } }
           readinessProbe:
             httpGet:
               path: /health
-              port: {{ .Values.service.targetPort }}
+              port: { { .Values.service.targetPort } }
             initialDelaySeconds: 3
             periodSeconds: 5

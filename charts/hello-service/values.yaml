@@ -1,4 +1,4 @@
-﻿image:
+image:
   repository: ghcr.io/dani025a/hello-service
   tag: latest
   pullPolicy: IfNotPresent
@@ -12,10 +12,10 @@ service:
 
 env:
   - name: NODE_ENV
-    value: "production"
+    value: 'production'
   - name: PORT
-    value: "3001"
+    value: '3001'
   - name: RABBITMQ_URL
-    value: "amqp://guest:guest@rabbitmq.default.svc.cluster.local:5672"
+    value: 'amqp://guest:guest@rabbitmq.default.svc.cluster.local:5672'
 
 resources: {}
