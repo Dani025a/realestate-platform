@@ -1,0 +1,58 @@
+﻿name: ci
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Enable corepack (pnpm)
+        run: corepack enable
+
+      - name: Install deps
+        run: pnpm install
+
+      - name: Build all
+        run: pnpm -r build
+
+      - name: Docker login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set image tags
+        id: vars
+        run: |
+          echo "IMAGE=ghcr.io/${{ github.repository_owner }}/hello-service" >> $GITHUB_OUTPUT
+          if [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            echo "TAGS=type=raw,value=latest" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Build + Push hello-service
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: services/hello-service/Dockerfile
+          push: true
+          tags: |
+            ${{ steps.vars.outputs.IMAGE }}:${{ github.sha }}
+            ${{ steps.vars.outputs.IMAGE }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

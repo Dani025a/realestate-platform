@@ -1,0 +1,40 @@
+version: "3.9"
+services:
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    ports: ["5672:5672", "15672:15672"]
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+
+  pg-auth:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: auth
+      POSTGRES_PASSWORD: authpass
+      POSTGRES_DB: authdb
+    ports: ["5433:5432"]
+    volumes: [ "pg-auth-data:/var/lib/postgresql/data" ]
+
+  pg-listings:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: listings
+      POSTGRES_PASSWORD: listingspass
+      POSTGRES_DB: listingsdb
+    ports: ["5434:5432"]
+    volumes: [ "pg-listings-data:/var/lib/postgresql/data" ]
+
+  pg-booking:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: booking
+      POSTGRES_PASSWORD: bookingpass
+      POSTGRES_DB: bookingdb
+    ports: ["5435:5432"]
+    volumes: [ "pg-booking-data:/var/lib/postgresql/data" ]
+
+volumes:
+  pg-auth-data:
+  pg-listings-data:
+  pg-booking-data:
