@@ -1,11 +1,11 @@
-{
+﻿{
   "name": "realestate-platform",
   "private": true,
   "packageManager": "pnpm@9.0.0",
   "workspaces": ["services/*", "packages/*"],
   "scripts": {
     "build": "pnpm -r build",
-    "dev:hello": "pnpm --filter hello-service dev",
+    "dev:hello": "pnpm --filter hello-service dev", "dev:auth": "pnpm --filter auth-service dev",
     "lint": "pnpm -r lint",
     "format": "pnpm -r format",
     "start:compose": "docker compose up -d",

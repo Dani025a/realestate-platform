@@ -2,7 +2,7 @@
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ['main']
   pull_request:
 
 permissions:
@@ -57,5 +57,17 @@ jobs:
           tags: |
             ghcr.io/${{ env.REPO_LOWER }}/hello-service:${{ github.sha }}
             ghcr.io/${{ env.REPO_LOWER }}/hello-service:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build + Push auth-service
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: services/auth-service/Dockerfile
+          push: true
+          tags: |
+            ghcr.io/${{ env.REPO_LOWER }}/auth-service:${{ github.sha }}
+            ghcr.io/${{ env.REPO_LOWER }}/auth-service:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
