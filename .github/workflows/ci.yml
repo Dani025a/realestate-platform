@@ -1,9 +1,8 @@
-@'
-name: ci
+﻿name: ci
 
 on:
   push:
-    branches: [ main ]
+    branches: [ "main" ]
   pull_request:
 
 permissions:
@@ -14,30 +13,17 @@ jobs:
   build-and-push:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      # Use pnpm from package.json "packageManager" (removes version clash)
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+      # Use pnpm from package.json "packageManager" (no version duplication)
+      - uses: pnpm/action-setup@v4
         with:
           run_install: false
 
-      - name: Cache pnpm store
-        id: pnpm-cache
-        run: echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
-
-      - uses: actions/cache@v4
+      - uses: actions/setup-node@v4
         with:
-          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-store-
+          node-version: 20
+          cache: pnpm
 
       - name: Install deps
         run: pnpm install --frozen-lockfile
@@ -52,10 +38,6 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Set image vars
-        id: vars
-        run: echo "IMAGE=ghcr.io/${{ github.repository_owner }}/hello-service" >> $GITHUB_OUTPUT
-
       - name: Build + Push hello-service
         uses: docker/build-push-action@v6
         with:
@@ -63,13 +45,7 @@ jobs:
           file: services/hello-service/Dockerfile
           push: true
           tags: |
-            ${{ steps.vars.outputs.IMAGE }}:${{ github.sha }}
-            ${{ steps.vars.outputs.IMAGE }}:latest
+            ghcr.io/${{ github.repository_owner }}/hello-service:${{ github.sha }}
+            ghcr.io/${{ github.repository_owner }}/hello-service:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
-'@ | Set-Content .github\workflows\ci.yml -Encoding utf8
-
-git add .github/workflows/ci.yml
-git commit -m "ci: fix pnpm version conflict by using packageManager version"
-git pull --rebase origin main
-git push origin main
